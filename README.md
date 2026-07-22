@@ -1,45 +1,27 @@
-# PACKROVE CRM V2 云端版
+# PACKROVE CRM V9.5 — Follow-up Engine Final
 
-## 已包含
-- 客户CRM与A/B/C分类
-- 今日待跟、逾期和3天内提醒
-- 完整跟进时间轴
-- 报价、PI、订单、发货、样品管理
-- 数据统计与销售漏斗
-- 手机端和深色模式
-- Excel导出、JSON一键备份/恢复
-- 本地规则AI分析与英文跟进话术
-- Supabase邮箱注册/登录与云端同步
+这是一个可实际操作的单页 CRM。未配置 Supabase 时自动使用浏览器 LocalStorage，并载入旧版提取的 9 个真实客户；配置后切换为云端模式。
 
-## 第一步：升级数据库
-进入 Supabase → SQL Editor → New query，复制 `supabase_v2.sql` 全部内容并点击 Run。
+## 已落地功能
 
-## 第二步：本地预览
-不要直接双击 index.html（浏览器模块和路由可能受限制）。
-在本目录打开终端运行：
-`python -m http.server 8080`
-然后访问：
-`http://localhost:8080`
+- Dashboard 今日任务：首次开发、二触、三触、已建联待跟、报价跟进
+- 客户 CRUD、搜索、筛选、未建联/已建联双客户池
+- 客户 360：画像、需求、顾虑、下一步、时间轴
+- 跟进引擎：一触 +3天、二触 +5天、三触 +7天
+- 客户回复后一键转入已建联池
+- 报价 → PI → 订单 → 发货基础闭环
+- Excel/JSON/CSV 导入，JSON/CSV 导出备份
+- Supabase 邮箱密码登录与云端 CRUD
+- 9 个历史客户 seed SQL 和本地初始化数据
 
-## 第三步：部署到 Vercel
-1. 把本文件夹上传到 GitHub 新仓库。
-2. Vercel → Add New → Project → Import Git Repository。
-3. Framework Preset 选择 Other。
-4. Build Command 留空，Output Directory 留空。
-5. 点击 Deploy。
-6. 部署后，将 Supabase → Authentication → URL Configuration：
-   - Site URL 改为你的 Vercel 正式网址
-   - Redirect URLs 加入 `https://你的域名/**`
+## 直接试用
 
-## 首次使用
-1. 打开网站注册邮箱账户。
-2. 邮箱确认后登录。
-3. 数据管理 → 导入现有9位客户。
+运行 `start-local.bat`，浏览器打开 `http://localhost:8080`。未配置 Supabase 时显示“本地演示模式”。
 
-## 安全
-网页仅使用 Publishable Key；不要把 Secret Key 或 service_role Key 放进任何前端文件。
-RLS策略确保登录用户只能访问自己的数据。
+## 云端启用
 
-## AI功能说明
-当前“AI助手”为本地规则版，不会上传聊天内容。
-真正的大模型自动分析需要额外建立Vercel Serverless Function，并通过环境变量保存API密钥。
+1. 创建 Supabase 项目。
+2. SQL Editor 依次执行：`supabase/01_schema.sql`、`02_rls_authenticated.sql`、`03_seed_customers.sql`。
+3. 在 Supabase Auth 创建用户或启用邮箱注册。
+4. 修改 `js/config.js`：填写 Project URL 与 Publishable Key。不要把 Secret/Service Role Key 放进前端。
+5. 上传 GitHub，再导入 Vercel；本项目是纯静态项目，无需构建命令。

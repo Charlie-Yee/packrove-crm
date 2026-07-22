@@ -1,58 +1,88 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>PACKROVE CRM V2</title>
-<link rel="stylesheet" href="/styles.css"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PACKROVE CRM V9.5</title>
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
-<div id="toast"></div>
-<div id="authScreen" class="auth-screen">
-  <div class="auth-card">
-    <div class="logo-mark">P</div><h1>PACKROVE CRM</h1><p>外贸客户关系与订单管理系统</p>
-    <div class="tabs"><button class="active" data-auth="login">登录</button><button data-auth="signup">注册</button></div>
-    <form id="authForm">
-      <input id="authEmail" type="email" placeholder="邮箱" required/>
-      <input id="authPassword" type="password" placeholder="密码（至少6位）" required minlength="6"/>
-      <button class="primary wide" type="submit">登录</button>
+  <div id="authGate" class="auth-gate hidden">
+    <form id="authForm" class="auth-card">
+      <div class="brand-mark">P</div>
+      <h1>PACKROVE CRM</h1>
+      <p>登录后进入云端客户管理系统</p>
+      <label>邮箱<input id="authEmail" type="email" required autocomplete="email"></label>
+      <label>密码<input id="authPassword" type="password" required minlength="6" autocomplete="current-password"></label>
+      <button class="btn primary" type="submit">登录</button>
+      <button class="btn ghost" type="button" id="signupBtn">注册账号</button>
+      <div id="authMessage" class="form-message"></div>
     </form>
-    <div class="auth-note">首次注册后，如Supabase开启邮箱确认，请先到邮箱点击确认链接。</div>
   </div>
-</div>
 
-<div id="app" class="app hidden">
   <aside class="sidebar">
-    <div class="brand"><div class="logo-mark small">P</div><div>PACKROVE CRM<small>V2 云端版</small></div></div>
+    <div class="brand"><span class="brand-mark small">P</span><div><strong>PACKROVE</strong><small>Sales CRM</small></div></div>
     <nav id="nav">
-      <button class="active" data-page="dashboard">⌂ 概览</button>
-      <button data-page="today">◷ 今日待跟</button>
-      <button data-page="customers">◎ 客户CRM</button>
-      <button data-page="quotes">＄ 报价管理</button>
-      <button data-page="pi">▣ PI管理</button>
-      <button data-page="orders">▤ 订单管理</button>
-      <button data-page="shipments">⇢ 发货管理</button>
-      <button data-page="samples">◇ 样品管理</button>
-      <button data-page="analytics">▥ 数据统计</button>
-      <button data-page="ai">✦ AI助手</button>
-      <button data-page="data">⌁ 数据管理</button>
+      <button data-view="dashboard" class="active">📊 概览</button>
+      <button data-view="tasks">⏰ 今日待跟 <span id="navTaskCount" class="nav-count">0</span></button>
+      <button data-view="connected">👥 已建联客户</button>
+      <button data-view="leads">🌎 未建联客户</button>
+      <button data-view="quotations">💰 报价</button>
+      <button data-view="pi">📄 PI</button>
+      <button data-view="orders">📦 订单</button>
+      <button data-view="shipping">🚢 发货</button>
+      <button data-view="statistics">📈 数据统计</button>
+      <button data-view="settings">⚙ 设置与导入</button>
     </nav>
-    <div class="sidebar-bottom">
-      <button id="themeBtn">◐ 深色模式</button>
-      <button id="logoutBtn">退出登录</button>
-    </div>
+    <div class="sidebar-foot"><span id="modeBadge" class="mode-badge">本地模式</span><button id="signOutBtn" class="link-btn hidden">退出</button></div>
   </aside>
-  <main>
-    <header><div><h1 id="pageTitle">概览</h1><p id="pageSub">欢迎回来，今天优先处理最有价值的客户。</p></div><div class="header-actions"><span id="userEmail"></span><button class="primary" id="globalAdd">＋ 新增客户</button></div></header>
-    <section id="content"></section>
-  </main>
-</div>
 
-<div id="modal" class="modal"><div class="modal-card"><div class="modal-head"><h2 id="modalTitle"></h2><button id="modalClose">×</button></div><div id="modalBody"></div></div></div>
-<script>
-window.CRM_CONFIG={"url": "https://tqsxaggkspkaodutlrcd.supabase.co", "key": "sb_publishable_hz-ovwvrz0dQMDhJXigY4A_yyaY_8VE"};
-window.SEED_CLIENTS=[{"name": "ILAN Francamente Kombucha", "platform": "WA", "country": "哥伦比亚", "products": "自动封罐机", "grade": "A", "profile": "创业型饮品客户，主动询问自动设备，对进口和清关流程较谨慎。", "grade_reason": "设备客单价高、互动积极、需求明确；当前主要障碍是进口顾虑。", "stage": "已报价", "last_contact": "2026-07-22", "next_follow": "2026-07-23", "concern": "进口、清关、税费及到门方案", "next_action": "确认客户更倾向快递还是海运，并解释DDP/到门方案差异。", "probability": 80, "notes": "客户对进口有顾虑，已发送报价。"}, {"name": "Renato Crevelim", "platform": "WA", "country": "巴西", "products": "带传送带封罐机", "grade": "A", "profile": "巴西设备客户，已确认PI，正在让货代核实运输。", "grade_reason": "已进入实质执行阶段，成交意向很强。", "stage": "PI确认", "last_contact": "2026-07-22", "next_follow": "2026-07-25", "concern": "货代确认、运输衔接", "next_action": "询问货代确认进度，主动提供包装尺寸、重量和装运资料。", "probability": 95, "notes": "已发草稿PI，客户正在让货代确认运费。"}, {"name": "Moon Crafts", "platform": "IG", "country": "", "products": "手动封罐机；250B/500A/500B/700A", "grade": "B", "profile": "手动封罐机客户，已明确表示8月初有采购需求。", "grade_reason": "有明确时间节点和产品兴趣，但尚未进入最终确认。", "stage": "已报价", "last_contact": "2026-07-15", "next_follow": "2026-07-25", "concern": "采购时间尚未完全锁定", "next_action": "提前确认8月采购计划，询问是否需要更新报价或确认具体罐型。", "probability": 65, "notes": "8月初有需求。"}, {"name": "Brian", "platform": "WA", "country": "牙买加", "products": "A1 2色Logo 1000个", "grade": "B", "profile": "牙买加新店客户，计划9月底开业，需要定制罐子。", "grade_reason": "有明确开业节点、数量和定制需求。", "stage": "已报价", "last_contact": "2026-07-22", "next_follow": "2026-07-27", "concern": "交期、海运周期、开业时间", "next_action": "询问Logo和开业准备进度，并提醒生产与约70天运输周期。", "probability": 65, "notes": "客户在考虑，9月底开业。"}, {"name": "GrabThaLook", "platform": "IG", "country": "圭亚那", "products": "手动封罐机", "grade": "B", "profile": "曾对手动设备感兴趣，近期沟通停顿。", "grade_reason": "存在真实兴趣但需求尚未完全确认。", "stage": "等确认", "last_contact": "2026-07-22", "next_follow": "2026-07-25", "concern": "运输时间长、需求是否已解决", "next_action": "轻松询问近况及之前的设备需求是否已经解决。", "probability": 50, "notes": "运输时间较长。"}, {"name": "Coco's Dessert Factory", "platform": "IG", "country": "英国", "products": "A2罐子10000个；500ml杯+纸碗", "grade": "B", "profile": "英国甜品店客户，同时有罐子、杯子和纸碗的组合采购需求。", "grade_reason": "需求品类多、数量明确，具备较高订单价值；但报价后已读未回。", "stage": "已报价", "last_contact": "2026-07-22", "next_follow": "2026-07-25", "concern": "价格、组合方案或采购优先级", "next_action": "询问报价中是否有需要调整的数量、印刷或运输方案。", "probability": 50, "notes": "已读未回。"}, {"name": "Brandon", "platform": "WA", "country": "", "products": "A2罐子1000个", "grade": "C", "profile": "有明确罐型和数量需求，但报价后暂无进一步互动。", "grade_reason": "客户热度和回复意愿偏低。", "stage": "已报价", "last_contact": "2026-07-20", "next_follow": "2026-07-25", "concern": "价格或采购时机", "next_action": "简短确认是否看过报价，以及是否需要调整数量或印刷。", "probability": 35, "notes": "已读未回。"}, {"name": "Fer", "platform": "WA", "country": "", "products": "A13 2色Logo 1000个", "grade": "C", "profile": "定制罐子询盘客户，数量明确，但报价后尚未阅读。", "grade_reason": "缺少有效互动信号，需低频确认。", "stage": "已报价", "last_contact": "2026-07-20", "next_follow": "2026-07-25", "concern": "消息未读、需求真实性待确认", "next_action": "确认客户是否收到报价，避免连续发送过多信息。", "probability": 20, "notes": "报价消息未读。"}, {"name": "Fable Coffee Cart Central PA", "platform": "IG", "country": "美国", "products": "12oz杯 2色环绕印刷", "grade": "C", "profile": "美国咖啡车客户，关注杯子印刷，但认为综合成本及运输时间不理想。", "grade_reason": "近期采购意愿较低，应降低频率、长期培育。", "stage": "暂缓", "last_contact": "2026-07-20", "next_follow": "2026-07-30", "concern": "综合价格、海运时效", "next_action": "分享新案例或更合适的组合方案，保持低频存在感。", "probability": 20, "notes": "综合看比当地价格低，但整体时效晚约10天。"}];
-</script>
-<script src="/app.js"></script>
-</body></html>
+  <main class="main">
+    <header class="topbar">
+      <div><h1 id="viewTitle">销售任务中心</h1><p id="todayText"></p></div>
+      <div class="top-actions"><button id="addCustomerBtn" class="btn primary">＋ 新增客户</button></div>
+    </header>
+
+    <section id="view-dashboard" class="view active">
+      <div class="kpi-grid">
+        <button class="kpi-card" data-go="tasks"><span>🔥 已建联待跟</span><strong id="kpiConnected">0</strong><small>今天或已逾期</small></button>
+        <button class="kpi-card" data-go="tasks" data-task="首次开发"><span>🌎 今天首次开发</span><strong id="kpiFirst">0</strong><small>未联系客户</small></button>
+        <button class="kpi-card" data-go="tasks" data-task="二次触达"><span>🟠 今天二次触达</span><strong id="kpiSecond">0</strong><small>一触后 3 天</small></button>
+        <button class="kpi-card" data-go="tasks" data-task="三次触达"><span>🔴 今天三次触达</span><strong id="kpiThird">0</strong><small>二触后 5 天</small></button>
+      </div>
+      <div class="panel-grid">
+        <section class="panel span-2"><div class="panel-head"><div><h2>今日行动清单</h2><p>优先处理逾期和 A 类客户</p></div><button class="btn ghost" data-go="tasks">查看全部</button></div><div id="dashboardTasks"></div></section>
+        <section class="panel"><div class="panel-head"><div><h2>销售漏斗</h2><p>当前客户阶段</p></div></div><div id="funnelChart" class="funnel"></div></section>
+      </div>
+    </section>
+
+    <section id="view-tasks" class="view">
+      <div class="toolbar"><select id="taskTypeFilter"><option value="">全部任务</option><option>首次开发</option><option>二次触达</option><option>三次触达</option><option>报价跟进</option><option>已建联待跟</option><option>再次跟进</option></select><select id="taskGradeFilter"><option value="">全部等级</option><option>A</option><option>B</option><option>C</option></select></div>
+      <div class="panel"><div id="taskTable"></div></div>
+    </section>
+
+    <section id="view-connected" class="view"><div class="toolbar customer-toolbar"></div><div class="panel"><div id="connectedTable"></div></div></section>
+    <section id="view-leads" class="view"><div class="toolbar customer-toolbar"></div><div class="panel"><div id="leadTable"></div></div></section>
+    <section id="view-quotations" class="view"><div class="panel"><div class="panel-head"><h2>报价管理</h2><button id="addQuoteBtn" class="btn primary">＋ 新建报价</button></div><div id="quoteTable"></div></div></section>
+    <section id="view-pi" class="view"><div class="panel"><div class="panel-head"><h2>PI 管理</h2></div><div id="piTable"></div></div></section>
+    <section id="view-orders" class="view"><div class="panel"><div class="panel-head"><h2>订单管理</h2></div><div id="orderTable"></div></div></section>
+    <section id="view-shipping" class="view"><div class="panel"><div class="panel-head"><h2>发货管理</h2></div><div id="shippingTable"></div></div></section>
+    <section id="view-statistics" class="view"><div class="kpi-grid stats"><div class="kpi-card"><span>客户总数</span><strong id="statTotal">0</strong></div><div class="kpi-card"><span>已回复率</span><strong id="statReply">0%</strong></div><div class="kpi-card"><span>报价率</span><strong id="statQuote">0%</strong></div><div class="kpi-card"><span>成交率</span><strong id="statWon">0%</strong></div></div><div class="panel-grid"><section class="panel"><h2>客户等级</h2><div id="gradeStats"></div></section><section class="panel"><h2>国家分布</h2><div id="countryStats"></div></section></div></section>
+    <section id="view-settings" class="view"><div class="panel-grid"><section class="panel"><h2>数据导入</h2><p>支持 CRM_UPDATE.xlsx、客户导入 Excel、JSON。</p><input id="importFile" type="file" accept=".xlsx,.xls,.json,.csv"><button id="importBtn" class="btn primary">导入并更新</button><div id="importMessage" class="form-message"></div></section><section class="panel"><h2>备份与模式</h2><p id="modeDescription"></p><button id="exportJsonBtn" class="btn ghost">导出完整 JSON</button><button id="exportCsvBtn" class="btn ghost">导出客户 CSV</button><button id="resetLocalBtn" class="btn danger">重置本地演示数据</button></section></div><div class="panel"><h2>云端配置</h2><ol><li>在 Supabase SQL Editor 执行 <code>supabase/01_schema.sql</code> 和 <code>02_rls_authenticated.sql</code>。</li><li>执行 <code>03_seed_customers.sql</code> 导入 9 个历史客户。</li><li>修改 <code>js/config.js</code>，填写 Project URL 和 Publishable Key。</li><li>上传 GitHub，并通过 Vercel 或 GitHub Pages 部署。</li></ol></div></section>
+  </main>
+
+  <div id="customerModal" class="modal hidden"><div class="modal-card large"><div class="modal-head"><h2 id="customerModalTitle">新增客户</h2><button class="icon-btn" data-close="customerModal">×</button></div><form id="customerForm" class="form-grid"></form></div></div>
+  <div id="detailDrawer" class="drawer hidden"><div class="drawer-card"><div class="drawer-head"><div><h2 id="detailName"></h2><p id="detailMeta"></p></div><button class="icon-btn" data-close="detailDrawer">×</button></div><div id="detailBody"></div></div></div>
+  <div id="quoteModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h2>新建报价</h2><button class="icon-btn" data-close="quoteModal">×</button></div><form id="quoteForm" class="form-grid"></form></div></div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/seed.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/import.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
