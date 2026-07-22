@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PACKROVE CRM V9.5.2</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div id="authGate" class="auth-gate hidden">
+    <form id="authForm" class="auth-card">
+      <div class="brand-mark">P</div>
+      <h1>PACKROVE CRM</h1>
+      <p>登录后进入云端客户管理系统</p>
+      <label>邮箱<input id="authEmail" type="email" required autocomplete="email"></label>
+      <label>密码<input id="authPassword" type="password" required minlength="6" autocomplete="current-password"></label>
+      <button class="btn primary" type="submit">登录</button>
+      <button class="btn ghost" type="button" id="signupBtn">注册账号</button>
+      <div id="authMessage" class="form-message"></div>
+    </form>
+  </div>
+
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-mark small">P</span><div><strong>PACKROVE</strong><small>Sales CRM</small></div></div>
+    <nav id="nav">
+      <button data-view="dashboard" class="active">📊 概览</button>
+      <button data-view="tasks">⏰ 今日待跟 <span id="navTaskCount" class="nav-count">0</span></button>
+      <button data-view="connected">👥 已建联客户</button>
+      <button data-view="leads">🌎 未建联客户</button>
+      <button data-view="quotations">💰 报价</button>
+      <button data-view="pi">📄 PI</button>
+      <button data-view="orders">📦 订单</button>
+      <button data-view="shipping">🚢 发货</button>
+      <button data-view="statistics">📈 数据统计</button>
+      <button data-view="settings">⚙ 设置与导入</button>
+    </nav>
+    <div class="sidebar-foot"><span id="modeBadge" class="mode-badge">本地模式</span><button id="signOutBtn" class="link-btn hidden">退出</button></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><h1 id="viewTitle">销售任务中心</h1><p id="todayText"></p></div>
+      <div class="top-actions"><button id="addCustomerBtn" class="btn primary">＋ 新增客户</button></div>
+    </header>
+
+    <section id="view-dashboard" class="view active">
+      <div class="kpi-grid">
+        <button class="kpi-card" data-go="tasks"><span>🔥 已建联待跟</span><strong id="kpiConnected">0</strong><small>今天或已逾期</small></button>
+        <button class="kpi-card" data-go="tasks" data-task="首次开发"><span>🌎 今天首次开发</span><strong id="kpiFirst">0</strong><small>未联系客户</small></button>
+        <button class="kpi-card" data-go="tasks" data-task="二次触达"><span>🟠 今天二次触达</span><strong id="kpiSecond">0</strong><small>一触后 3 天</small></button>
+        <button class="kpi-card" data-go="tasks" data-task="三次触达"><span>🔴 今天三次触达</span><strong id="kpiThird">0</strong><small>二触后 5 天</small></button>
+      </div>
+      <div class="panel-grid">
+        <section class="panel span-2"><div class="panel-head"><div><h2>今日行动清单</h2><p>优先处理逾期和 A 类客户</p></div><button class="btn ghost" data-go="tasks">查看全部</button></div><div id="dashboardTasks"></div></section>
+        <section class="panel"><div class="panel-head"><div><h2>销售漏斗</h2><p>当前客户阶段</p></div></div><div id="funnelChart" class="funnel"></div></section>
+      </div>
+    </section>
+
+    <section id="view-tasks" class="view">
+      <div class="toolbar"><select id="taskTypeFilter"><option value="">全部任务</option><option>首次开发</option><option>二次触达</option><option>三次触达</option><option>报价跟进</option><option>已建联待跟</option><option>再次跟进</option></select><select id="taskGradeFilter"><option value="">全部等级</option><option>A</option><option>B</option><option>C</option></select></div>
+      <div class="panel"><div id="taskTable"></div></div>
+    </section>
+
+    <section id="view-connected" class="view"><div class="toolbar customer-toolbar"></div><div class="panel"><div id="connectedTable"></div></div></section>
+    <section id="view-leads" class="view"><div class="toolbar customer-toolbar"></div><div class="panel"><div id="leadTable"></div></div></section>
+    <section id="view-quotations" class="view"><div class="panel"><div class="panel-head"><h2>报价管理</h2><button id="addQuoteBtn" class="btn primary">＋ 新建报价</button></div><div id="quoteTable"></div></div></section>
+    <section id="view-pi" class="view"><div class="panel"><div class="panel-head"><h2>PI 管理</h2></div><div id="piTable"></div></div></section>
+    <section id="view-orders" class="view"><div class="panel"><div class="panel-head"><h2>订单管理</h2></div><div id="orderTable"></div></div></section>
+    <section id="view-shipping" class="view"><div class="panel"><div class="panel-head"><h2>发货管理</h2></div><div id="shippingTable"></div></div></section>
+    <section id="view-statistics" class="view"><div class="kpi-grid stats"><div class="kpi-card"><span>客户总数</span><strong id="statTotal">0</strong></div><div class="kpi-card"><span>已回复率</span><strong id="statReply">0%</strong></div><div class="kpi-card"><span>报价率</span><strong id="statQuote">0%</strong></div><div class="kpi-card"><span>成交率</span><strong id="statWon">0%</strong></div></div><div class="panel-grid"><section class="panel"><h2>客户等级</h2><div id="gradeStats"></div></section><section class="panel"><h2>国家分布</h2><div id="countryStats"></div></section></div></section>
+    <section id="view-settings" class="view"><div class="panel-grid"><section class="panel"><h2>数据导入</h2><p>支持 CRM_UPDATE.xlsx、客户导入 Excel、JSON。</p><input id="importFile" type="file" accept=".xlsx,.xls,.json,.csv"><button id="importBtn" class="btn primary">导入并更新</button><div id="importMessage" class="form-message"></div></section><section class="panel"><h2>备份与模式</h2><p id="modeDescription"></p><button id="exportJsonBtn" class="btn ghost">导出完整 JSON</button><button id="exportCsvBtn" class="btn ghost">导出客户 CSV</button><button id="resetLocalBtn" class="btn danger">重置本地演示数据</button></section></div><div class="panel"><h2>云端配置</h2><ol><li>在 Supabase SQL Editor 执行 <code>supabase/01_schema.sql</code> 和 <code>02_rls_authenticated.sql</code>。</li><li>执行 <code>03_seed_customers.sql</code> 导入 9 个历史客户。</li><li>修改 <code>js/config.js</code>，填写 Project URL 和 Publishable Key。</li><li>上传 GitHub，并通过 Vercel 或 GitHub Pages 部署。</li></ol></div></section>
+  </main>
+
+  <div id="customerModal" class="modal hidden"><div class="modal-card large"><div class="modal-head"><h2 id="customerModalTitle">新增客户</h2><button class="icon-btn" data-close="customerModal">×</button></div><form id="customerForm" class="form-grid"></form></div></div>
+  <div id="detailDrawer" class="drawer hidden"><div class="drawer-card"><div class="drawer-head"><div><h2 id="detailName"></h2><p id="detailMeta"></p></div><button class="icon-btn" data-close="detailDrawer">×</button></div><div id="detailBody"></div></div></div>
+  <div id="quoteModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><h2>新建报价</h2><button class="icon-btn" data-close="quoteModal">×</button></div><form id="quoteForm" class="form-grid"></form></div></div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/seed.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/import.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
